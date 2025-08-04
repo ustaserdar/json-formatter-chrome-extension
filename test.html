@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Copy Cleaner Test Sayfası</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-box {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .expected {
+            background: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #666;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 JSON Copy Cleaner Test Sayfası</h1>
+    
+    <div class="instructions">
+        <strong>📋 Test Talimatları:</strong>
+        <ol>
+            <li>Extension'ın yüklü ve aktif olduğundan emin olun</li>
+            <li>Chrome Developer Tools'u açın (F12)</li>
+            <li>Console tab'ına gidin</li>
+            <li>Aşağıdaki test JSON'larını seçin ve kopyalayın (Ctrl+C / Cmd+C)</li>
+            <li>Bir text editor'e yapıştırın ve sonucu kontrol edin</li>
+            <li>Console'da extension log'larını takip edin</li>
+        </ol>
+        
+        <div id="protocolWarning" style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin: 10px 0; border-radius: 5px; display: none;">
+            ⚠️ <strong>Dikkat:</strong> Bu sayfa HTTP protokolü kullanıyor. Clipboard API'si HTTPS sayfalarında daha iyi çalışır.
+        </div>
+    </div>
+
+    <h2>Test 1: Basit Kaçış Karakterli JSON</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        {\"name\": \"Ahmet Yılmaz\", \"city\": \"İstanbul\", \"message\": \"Merhaba \\\"dünya\\\"!\", \"age\": 30}
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong><br>
+        {<br>
+        &nbsp;&nbsp;"name": "Ahmet Yılmaz",<br>
+        &nbsp;&nbsp;"city": "İstanbul",<br>
+        &nbsp;&nbsp;"message": "Merhaba \"dünya\"!",<br>
+        &nbsp;&nbsp;"age": 30<br>
+        }
+    </div>
+
+    <h2>Test 2: Nested JSON (İç İçe)</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        {\"user\": {\"id\": 123, \"name\": \"Test User\", \"preferences\": {\"theme\": \"dark\", \"language\": \"tr\"}}, \"status\": \"active\", \"data\": \"Line 1\\nLine 2\\nLine 3\"}
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Düzgün formatlanmış, kaçış karakterleri temizlenmiş JSON
+    </div>
+
+    <h2>Test 3: JSON Array</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        [{\"id\": 1, \"name\": \"İtem 1\", \"description\": \"Bu bir \\\"test\\\" itemdır\"}, {\"id\": 2, \"name\": \"İtem 2\", \"path\": \"C:\\\\Users\\\\Documents\\\\\"}]
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Düzgün formatlanmış JSON array
+    </div>
+
+    <h2>Test 4: Log İçinde Gömülü JSON</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        2024-01-15 10:30:25 [INFO] User action: {\"userId\": \"12345\", \"action\": \"login\", \"timestamp\": \"2024-01-15T10:30:25Z\", \"ip\": \"192.168.1.1\", \"userAgent\": \"Mozilla/5.0 (compatible)\"}
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Log metni aynı, içindeki JSON temizlenmiş
+    </div>
+
+    <h2>Test 5: Opensearch Tipi Log</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        {\"@timestamp\": \"2024-01-15T10:30:25.123Z\", \"level\": \"INFO\", \"message\": \"User \\\"john.doe\\\" logged in successfully\", \"fields\": {\"userId\": \"user_123\", \"sessionId\": \"sess_456\", \"source\": \"web_app\"}, \"tags\": [\"authentication\", \"success\"]}
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Tam formatlanmış Opensearch log entry'si
+    </div>
+
+    <h2>Test 6: JSON Olmayan Metin (Negatif Test)</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        Bu sadece düz bir metindir. JSON içermez. Extension bunu değiştirmemeli.
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Aynen aynı metin (değişiklik yok)
+    </div>
+
+    <h2>Test 7: Karışık İçerik</h2>
+    <div class="test-box">
+        <div class="test-title">Kopyalanacak Metin:</div>
+        Başında metin var {\"json\": \"burada\", \"value\": \"test \\\"quoted\\\" text\"} sonunda da metin var
+    </div>
+    <div class="expected">
+        <strong>Beklenen Sonuç:</strong> Başı ve sonu aynı, ortadaki JSON temizlenmiş
+    </div>
+
+    <div class="instructions">
+        <strong>🐛 Debugging:</strong>
+        <ul>
+            <li>Console'da <code>JSON Copy Cleaner:</code> ile başlayan log'ları takip edin</li>
+            <li>Extension popup'ını açıp test alanını kullanın</li>
+            <li>İstatistiklerin güncellenip güncellenmediğini kontrol edin</li>
+            <li>Bildirimler görünüyor mu kontrol edin</li>
+        </ul>
+    </div>
+
+    <div class="instructions">
+        <strong>❓ Sorun Çözme:</strong>
+        <ul>
+            <li>Extension yüklü ama çalışmıyorsa: <code>chrome://extensions/</code> sayfasında reload edin</li>
+            <li>Console'da hata varsa: Extension'ı kaldırıp yeniden yükleyin</li>
+            <li>İstatistikler güncellenmiyor: Storage permission'larını kontrol edin</li>
+        </ul>
+    </div>
+
+    <script>
+        // Test sayfası için yardımcı script
+        console.log('🧪 JSON Copy Cleaner Test Sayfası yüklendi');
+        console.log('📋 Test yapmak için yukarıdaki JSON\'ları kopyalayın');
+        
+        // Kopyalama olaylarını logla
+        document.addEventListener('copy', () => {
+            console.log('📋 Kopyalama tespit edildi (test sayfası)');
+        });
+
+        // Protokol kontrolü
+        const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        const hasClipboardAPI = navigator.clipboard && navigator.clipboard.readText;
+        
+        console.log('📊 Test Sayfası Durumu:');
+        console.log('- Protokol:', window.location.protocol);
+        console.log('- Clipboard API:', hasClipboardAPI ? '✅ Mevcut' : '❌ Mevcut değil');
+        console.log('- Güvenli bağlantı:', isSecure ? '✅ Evet' : '❌ Hayır (HTTP)');
+
+        if (!isSecure) {
+            document.getElementById('protocolWarning').style.display = 'block';
+            console.log('⚠️ HTTP protokolü tespit edildi - clipboard API sınırlı çalışabilir');
+        }
+
+        // Extension durumunu kontrol et
+        setTimeout(() => {
+            if (window.jsonCopyCleaner) {
+                console.log('✅ JSON Copy Cleaner extension aktif');
+                console.log('🔧 Extension durumu:', window.jsonCopyCleaner.isEnabled);
+            } else {
+                console.log('❌ JSON Copy Cleaner extension bulunamadı');
+                console.log('💡 Chrome Extensions sayfasından extension\'ı kontrol edin');
+            }
+        }, 1000);
+    </script>
+</body>
+</html> 
